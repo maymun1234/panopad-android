@@ -1,35 +1,25 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Tabs } from "expo-router";
+import BottomBar from "./bottombar";
+import { DarkModeProvider } from "./DarkModeContext"; // doğru path
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+    <DarkModeProvider>
+      <Tabs
+        tabBar={() => null} // Expo'nun default tab bar'ını gizliyoruz
+        screenOptions={{
+          headerShown: false,
+          
         }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />
-    </Tabs>
+      >
+        {/* Bu ekranlar BottomBar ile birlikte gösterilecek */}
+        <Tabs.Screen name="index" />
+        <Tabs.Screen name="messages" />
+        <Tabs.Screen name="success" />
+      </Tabs>
+
+      {/* Alt bar her zaman aktif */}
+      <BottomBar />
+    </DarkModeProvider>
   );
 }
