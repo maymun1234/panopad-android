@@ -9,43 +9,37 @@ export default function RootLayout() {
   const segments = useSegments(); 
 
   useEffect(() => {
-    // isLoading true ise, router tam hazır olmayabilir, bu yüzden bekle.
     if (!isLoading) return;
 
     async function checkTokenAndRedirect() {
       try {
         const token = await SecureStore.getItemAsync('userToken');
 
-        // Mevcut konumu kontrol et
-        const inAuthRoutes = segments[0] === 'register'; // Login/register gibi bir sayfada mı?
-        const inAppRoutes = segments[0] === '(tabs)'; // Ana uygulama sayfalarında mı?
-        
-        // --- Basitleştirilmiş Mantık ---
-        if (token && !inAppRoutes) {
-          // Token var ama uygulama içinde değilse -> /success'a git
-          console.log("Token bulundu, uygulama içine yönlendiriliyor.");
-          router.replace('/success');
+        // segments[0] ilk segment (örn: (tabs), login, register, messages)
+        const firstSegment = segments[0];
 
-        } else if (!token && inAppRoutes) {
-          // Token yok ama uygulama içinde (olmamalı) -> Login'e git
-          console.log("Token yok, giriş ekranına yönlendiriliyor.");
-          router.replace('/login'); 
+        if (token) {
+          // Token varsa ve login/register sayfasındaysa uygulama içine yönlendir
+          if (firstSegment === 'login' || firstSegment === 'register') {
+            router.replace('/(tabs)'); // ana uygulama sayfaları
+          }
+        } else {
+          // Token yoksa ve uygulama içi sayfadaysa login'e yönlendir
+          if (firstSegment === '(tabs)' || firstSegment === 'messages') {
+            router.replace('/login');
+          }
         }
 
       } catch (e) {
         console.error("Token okunurken hata:", e);
         router.replace('/login');
       } finally {
-        // Kontrol bitti, yüklemeyi durdur.
         setIsLoading(false);
       }
     }
 
     checkTokenAndRedirect();
-
-  // --- EN ÖNEMLİ DEĞİŞİKLİK BURADA ---
-  // useEffect'in, segments değiştiğinde yeniden çalışmasını sağla.
-  }, [segments, isLoading]); 
+  }, [segments, isLoading, router]);
 
   if (isLoading) {
     return (
@@ -55,5 +49,5 @@ export default function RootLayout() {
     );
   }
 
-  return <Slot />;
+  return <Slot />; // burası diğer sayfaları render eder
 }

@@ -88,7 +88,7 @@ export default function BottomBar() {
         </TouchableOpacity>
 
         {isLoggedIn && (
-          <TouchableOpacity onPress={() => router.push("/messages")}>
+          <TouchableOpacity onPress={() => router.push("/messages/index")}>
             <Text style={[styles.icon, { color: "#fff" }]}>💬</Text>
           </TouchableOpacity>
         )}
@@ -97,7 +97,7 @@ export default function BottomBar() {
           <Text style={[styles.icon, { color: "#fff" }]}>✏️</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => console.log("Share")}>
+        <TouchableOpacity onPress={() => router.push("/minireels")}>
           <Text style={[styles.icon, { color: "#fff" }]}>🔗</Text>
         </TouchableOpacity>
 
