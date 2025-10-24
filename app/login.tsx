@@ -1,35 +1,35 @@
 import React, { useState } from "react";
 import {
   View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  ActivityIndicator,
   Image,
   Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  SafeAreaView,
-  useColorScheme,
-} from "react-native";
-import { STYLES, COLORS } from "../components/panoostyles.js"; // Stil dosyanız
+} from "react-native"; // Kullanılmayan importları temizledik
+import { STYLES } from "../components/panoostyles.js";
 import * as SecureStore from "expo-secure-store";
 import { useRouter } from "expo-router";
 
-export const layout = { headerShown: false };
+// Jenerik bileşenlerimizi import ediyoruz
+import {
+  ScreenContainer,
+  StyledInput,
+  StyledButton,
+  StyledLink,
+} from "../components/auth.js";
+
+export const unstable_settings = {
+  headerShown: false,
+};
+
 
 export default function LoginScreen() {
   const router = useRouter();
-  const colorScheme = useColorScheme(); // 'light' veya 'dark'
-  const isDark = colorScheme === "dark";
-
+  // isDark ve useColorScheme buradan kalktı, hepsi bileşenlerin içinde.
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleLogin() {
-    // ... (Bu fonksiyon zaten mükemmel, değişiklik yok)
+    // ... (Bu fonksiyon aynı kalıyor)
     setLoading(true);
     try {
       const res = await fetch("http://bercan.blog/pages/api/app_login.php", {
@@ -37,19 +37,13 @@ export default function LoginScreen() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
-
       const text = await res.text();
-      // JSON parse etmeden önce boş metin kontrolü
-      if (!text) {
-        throw new Error("Sunucudan boş yanıt geldi.");
-      }
+      if (!text) { throw new Error("Sunucudan boş yanıt geldi."); }
       const json = JSON.parse(text);
-
       if (json.success) {
         await SecureStore.setItemAsync("userToken", json.token);
         await SecureStore.setItemAsync("username", json.username);
-        // router.push yerine replace kullanarak geri dönmeyi engelliyoruz
-        router.replace(`/success?username=${json.username}`); 
+        router.replace(`/success?username=${json.username}`);
       } else {
         Alert.alert("Giriş başarısız", json.message || "Bilinmeyen bir hata oluştu.");
       }
@@ -63,90 +57,46 @@ export default function LoginScreen() {
   }
 
   return (
-    // SafeAreaView için inline stil en temizi, bu kalabilir.
-    <SafeAreaView style={{ flex: 1, backgroundColor: isDark ? COLORS.darkBackground : COLORS.background }}>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
-      >
-        <ScrollView
-          contentContainerStyle={{
-            flexGrow: 1,
-            justifyContent: "center",
-            paddingHorizontal: 24,
-            paddingBottom: 20,
-          }}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Logo */}
-          <View style={STYLES.logoContainer}>
-            <Image
-              source={require("../assets/images/loginlogo.png")}
-              style={STYLES.logoImage}
-            />
-          </View>
+    // SafeAreaView, KeyboardAvoidingView ve ScrollView yerine tek bileşen
+    <ScreenContainer>
+      {/* Logo */}
+      <View style={STYLES.logoContainer}>
+        <Image
+          source={require("../assets/images/loginlogo.png")}
+          style={STYLES.logoImage}
+        />
+      </View>
 
-          {/* Form */}
-          <View style={{ marginTop: 30 }}>
-            <TextInput
-              placeholder="Kullanıcı adı"
-              // placeholderTextColor için inline kalması en iyisi
-              placeholderTextColor={isDark ? "#aaa" : "#555"}
-              value={username}
-              onChangeText={setUsername}
-              // *** DEĞİŞİKLİK BURADA ***
-              // Stilleri bir dizi içinde birleştiriyoruz.
-              // Eğer isDark true ise, STYLES.inputDark stilini ekliyoruz.
-              style={[ STYLES.input, isDark && STYLES.inputDark ]}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            <TextInput
-              placeholder="Şifre"
-              placeholderTextColor={isDark ? "#aaa" : "#555"}
-              value={password}
-              onChangeText={setPassword}
-              // *** DEĞİŞİKLİK BURADA ***
-              // Aynı temizliği burada da yapıyoruz.
-              style={[ STYLES.input, isDark && STYLES.inputDark ]}
-              secureTextEntry
-            />
-            <TouchableOpacity
-              // *** DEĞİŞİKLİK BURADA ***
-              // Buton renginiz (COLORS.primary) hem light hem dark modda
-              // aynıymış (#fd671e). Bu yüzden isDark kontrolü gereksiz.
-              style={STYLES.button}
-              onPress={handleLogin}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator color={COLORS.white} />
-              ) : (
-                <Text style={STYLES.btnText}>Giriş</Text>
-              )}
-            </TouchableOpacity>
-          </View>
+      {/* Form */}
+      <View style={{ marginTop: 30 }}>
+        {/* Jenerik TextInput bileşenimiz */}
+        <StyledInput
+          placeholder="Kullanıcı adı"
+          value={username}
+          onChangeText={setUsername}
+        />
+        {/* Jenerik TextInput bileşenimiz */}
+        <StyledInput
+          placeholder="Şifre"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+        {/* Jenerik Buton bileşenimiz */}
+        <StyledButton
+          title="Giriş"
+          onPress={handleLogin}
+          loading={loading}
+          disabled={loading}
+        />
+      </View>
 
-          {/* Kayıt Ol */}
-          <TouchableOpacity
-            style={{ alignSelf: "center", marginTop: 20, marginBottom: 10 }}
-            onPress={() => router.push("/register")}
-          >
-            <Text 
-              // *** DEĞİŞİKLİK BURADA ***
-              // Stil dosyasında "linkTextDark" tanımı olmadığı için
-              // inline olarak override etmek en temiz yol.
-              style={[
-                STYLES.linkText, 
-                isDark && { color: COLORS.primaryHover }
-              ]}
-            >
-              Kayıt Ol
-            </Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      {/* Kayıt Ol */}
+      {/* Jenerik Link bileşenimiz */}
+      <StyledLink
+        title="Kayıt Ol"
+        onPress={() => router.push("/register")}
+      />
+    </ScreenContainer>
   );
 }

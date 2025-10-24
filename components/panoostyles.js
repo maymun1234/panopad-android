@@ -94,7 +94,7 @@ export const STYLES = StyleSheet.create({
     marginTop: 60,
   },
   logoImage: {
-    width: 200,
+    width: 270,
     height: 120,
     resizeMode: "contain",
   },
