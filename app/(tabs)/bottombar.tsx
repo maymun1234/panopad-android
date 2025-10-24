@@ -88,7 +88,7 @@ export default function BottomBar() {
         </TouchableOpacity>
 
         {isLoggedIn && (
-          <TouchableOpacity onPress={() => router.push("/messages/index")}>
+          <TouchableOpacity onPress={() => router.push("/messages")}>
             <Text style={[styles.icon, { color: "#fff" }]}>💬</Text>
           </TouchableOpacity>
         )}

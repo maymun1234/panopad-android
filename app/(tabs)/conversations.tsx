@@ -10,6 +10,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  TextInput,
   TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -50,9 +51,8 @@ export default function MessagesScreen() {
   const [error, setError] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [conversationPartner, setConversationPartner] = useState<string | null>(
-    null
-  );
+  const [messageText, setMessageText] = useState("");
+  const [conversationPartner, setConversationPartner] = useState<string | null>(null);
   const [conversations, setConversations] = useState<ChatConversation[]>([]);
 
   const navigation = useNavigation<MessagesScreenNavigationProp>();
@@ -126,6 +126,21 @@ export default function MessagesScreen() {
     setIsRefreshing(false);
   }, [target_id]);
 
+  const sendMessage = async () => {
+    if (!messageText.trim()) return;
+    // Burada POST isteği ile mesaj gönderilebilir
+    // Örnek olarak direkt ekleyelim
+    const newMessage: ChatMessage = {
+      sender_id: 0, // kendi id
+      content: messageText,
+      timestamp: new Date().toISOString(),
+      is_mine: true,
+    };
+    setMessages((prev) => [...prev, newMessage]);
+    setMessageText("");
+    flatListRef.current?.scrollToEnd({ animated: true });
+  };
+
   // LOADING
   if (loading) {
     return (
@@ -154,7 +169,7 @@ export default function MessagesScreen() {
   // CONVERSATIONS LIST
   if (!target_id) {
     return (
-      <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+      <SafeAreaView style={styles.container}>
         <FlatList
           data={conversations}
           keyExtractor={(item, index) => `${item.other_user_id}-${index}`}
@@ -183,9 +198,7 @@ export default function MessagesScreen() {
               <Text style={styles.chatDate}>{item.timestamp}</Text>
             </TouchableOpacity>
           )}
-          ListEmptyComponent={
-            <Text style={styles.emptyText}>Henüz sohbet yok.</Text>
-          }
+          ListEmptyComponent={<Text style={styles.emptyText}>Henüz sohbet yok.</Text>}
         />
       </SafeAreaView>
     );
@@ -193,7 +206,7 @@ export default function MessagesScreen() {
 
   // MESSAGES LIST
   return (
-    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+    <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -227,17 +240,24 @@ export default function MessagesScreen() {
               </Text>
             </View>
           )}
-          ListEmptyComponent={
-            <Text style={styles.emptyText}>Henüz mesaj yok.</Text>
-          }
+          ListEmptyComponent={<Text style={styles.emptyText}>Henüz mesaj yok.</Text>}
           style={styles.chatContainer}
           onContentSizeChange={() =>
-            flatListRef.current?.scrollToEnd({ animated: false })
-          }
-          onLayout={() =>
-            flatListRef.current?.scrollToEnd({ animated: false })
+            flatListRef.current?.scrollToEnd({ animated: true })
           }
         />
+        {/* Mesaj Yazma Kutusu */}
+        <View style={styles.inputContainer}>
+          <TextInput
+            value={messageText}
+            onChangeText={setMessageText}
+            placeholder="Mesaj yaz..."
+            style={styles.input}
+          />
+          <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
+            <Text style={styles.sendButtonText}>Gönder</Text>
+          </TouchableOpacity>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -282,5 +302,32 @@ const styles = StyleSheet.create({
     color: "#555",
     alignSelf: "flex-end",
     marginTop: 5,
+  },
+  inputContainer: {
+    flexDirection: "row",
+    padding: 10,
+    borderTopWidth: 1,
+    borderColor: "#ccc",
+    backgroundColor: COLORS.white || "#fff",
+  },
+  input: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    paddingVertical: Platform.OS === "ios" ? 10 : 5,
+    marginRight: 10,
+    backgroundColor: "#fff",
+  },
+  sendButton: {
+    backgroundColor: COLORS.primary || "#007bff",
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    justifyContent: "center",
+  },
+  sendButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
   },
 });
