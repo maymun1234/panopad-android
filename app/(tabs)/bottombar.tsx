@@ -1,9 +1,7 @@
-import React from "react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, TouchableOpacity, Image, Text, StyleSheet, Dimensions } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useSegments } from "expo-router";
 import { COLORS } from "../../components/panoostyles";
-import { useDarkMode } from "./DarkModeContext";
 import * as SecureStore from 'expo-secure-store';
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -15,8 +13,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-around",
     paddingVertical: 10,
-    // width: SCREEN_WIDTH, // Bu satırı kaldırdık, genişlik artık parent'tan gelecek
-    borderRadius: 30, // <-- 1. YUVARLAK KÖŞELER İÇİN BUNU EKLEDİK
+    borderRadius: 30,
   },
   icon: {
     fontSize: 24,
@@ -36,54 +33,37 @@ const styles = StyleSheet.create({
 
 export default function BottomBar() {
   const router = useRouter();
-  const { darkMode, toggleDarkMode } = useDarkMode(); 
+  const segments = useSegments();
+  const currentRoute = segments.join("/"); // aktif route
+
+  const [darkMode, setDarkMode] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [profileImg, setProfileImg] = useState<string | null>(null);
 
   useEffect(() => {
     async function checkAuthStatus() {
-      try {
-        const token = await SecureStore.getItemAsync('userToken');
-        const imgUrl = await SecureStore.getItemAsync('userProfileImg');
-
-        if (token) {
-          setIsLoggedIn(true);
-        } else {
-          setIsLoggedIn(false); // Token yoksa durumu false yap
-        }
-
-        if (imgUrl) {
-          setProfileImg(imgUrl);
-        } else {
-          setProfileImg(null); // Resim yoksa null yap
-        }
-      } catch (e) {
-        console.error("SecureStore'dan okuma hatası", e);
-        setIsLoggedIn(false);
-      }
+      const token = await SecureStore.getItemAsync('userToken');
+      const imgUrl = await SecureStore.getItemAsync('userProfileImg');
+      setIsLoggedIn(!!token);
+      setProfileImg(imgUrl || null);
     }
     checkAuthStatus();
   }, []);
 
+  // Route değişimlerini logla
+  useEffect(() => {
+    console.log("Current Route:", currentRoute);
+  }, [currentRoute]);
+
   return (
-    // --- 2. DEĞİŞİKLİK BURADA: Konumlandırma ve Kenar Boşlukları ---
-    <SafeAreaView
-      edges={['bottom']}
-      style={{
-        position: 'absolute',
-        bottom: 16,       // Alt boşluk eklendi
-        left: 16,         // Sol boşluk eklendi
-        right: 16,        // Sağ boşluk eklendi
-      }}
-    >
-      <View
-        style={[
-          styles.container,
-          { backgroundColor: darkMode ? "#1e1e1e" : COLORS.primary },
-        ]}
-      >
+    <SafeAreaView edges={['bottom']} style={{ position: 'absolute', bottom: 16, left: 16, right: 16 }}>
+      <Text style={{ color: "#fff", textAlign: "center", marginBottom: 4 }}>
+        Route: {currentRoute}
+      </Text>
+
+      <View style={[styles.container, { backgroundColor: darkMode ? "#1e1e1e" : COLORS.primary }]}>
         {/* Dark Mode Toggle */}
-        <TouchableOpacity onPress={toggleDarkMode}>
+        <TouchableOpacity onPress={() => setDarkMode(!darkMode)}>
           <Text style={[styles.icon, { color: "#fff" }]}>{darkMode ? "🌞" : "🌙"}</Text>
         </TouchableOpacity>
 
@@ -119,3 +99,4 @@ export default function BottomBar() {
     </SafeAreaView>
   );
 }
+

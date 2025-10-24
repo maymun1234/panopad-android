@@ -1,6 +1,5 @@
 import { StyleSheet, Dimensions } from "react-native";
 
-// Ekran genişliği/uzunluğu
 const { width, height } = Dimensions.get("window");
 
 export const COLORS = {
@@ -14,6 +13,7 @@ export const COLORS = {
   white: "#fff",
   gray: "#666",
   inputBorder: "#ddd",
+  inputBorderDark: "#333",
   error: "#f44336",
 };
 
@@ -28,7 +28,7 @@ export const STYLES = StyleSheet.create({
   // === Genel container ===
   container: {
     flex: 1,
-    padding: 24,
+    paddingHorizontal: 24,
     backgroundColor: COLORS.background,
   },
   darkContainer: {
@@ -57,10 +57,16 @@ export const STYLES = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.inputBorder,
     borderRadius: 16,
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
     marginVertical: 8,
     backgroundColor: COLORS.white,
     fontSize: FONT_SIZES.normal,
+    color: COLORS.text,
+  },
+  inputDark: {
+    backgroundColor: "#1a1a1a",
+    borderColor: COLORS.inputBorderDark,
+    color: COLORS.white,
   },
 
   // === Butonlar ===
@@ -88,7 +94,7 @@ export const STYLES = StyleSheet.create({
     marginTop: 60,
   },
   logoImage: {
-    width: 120,
+    width: 200,
     height: 120,
     resizeMode: "contain",
   },
@@ -115,7 +121,7 @@ export const STYLES = StyleSheet.create({
   // === Post container (site CSS mantığı) ===
   postWrapper: {
     maxWidth: 700,
-    margin: "auto",
+    marginHorizontal: "auto",
     borderRadius: 16,
     padding: 30,
     position: "relative",

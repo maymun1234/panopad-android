@@ -17,6 +17,8 @@ export default function success() {
         }
       } catch (e) {
         console.error("Username alınamadı", e);
+
+        
       }
     }
     getUsername();

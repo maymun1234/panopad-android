@@ -87,7 +87,7 @@ export default function RegisterScreen() {
   {/* Logo ortada */}
   <View style={STYLES.logoContainer}>
     <Image 
-      source={require("../assets/images/logo.png")} 
+      source={require("../assets/images/loginlogo.png")} 
       style={STYLES.logoImage} 
     />
   </View>

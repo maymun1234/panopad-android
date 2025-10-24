@@ -16,6 +16,7 @@ export default function TabLayout() {
         <Tabs.Screen name="index" />
         <Tabs.Screen name="messages" />
         <Tabs.Screen name="success" />
+        
       </Tabs>
 
       {/* Alt bar her zaman aktif */}
@@ -23,3 +24,4 @@ export default function TabLayout() {
     </DarkModeProvider>
   );
 }
+
